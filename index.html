@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMA CGM Shipment Tracking Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #051039;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #051039;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        header img {
+            height: 60px;
+            margin-right: 25px;
+        }
+        header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        #tracking-form {
+            text-align: center;
+            padding: 50px;
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 40px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #tracking-form input {
+            width: 350px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #051039;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        #tracking-form button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #e20101;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #tracking-form button:hover {
+            background-color: #c40000;
+        }
+        #dashboard {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #dashboard h2 {
+            color: #051039;
+            border-bottom: 2px solid #e20101;
+            padding-bottom: 12px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .info-section {
+            margin-bottom: 40px;
+        }
+        .info-section h3 {
+            color: #e20101;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .info-section h3 i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .info-section p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        table th {
+            background-color: #051039;
+            color: #ffffff;
+            font-weight: 500;
+        }
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .progress-container::before {
+            content: '';
+            background-color: #e20101;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 4px;
+            width: 100%;
+            z-index: -1;
+        }
+        .progress {
+            background-color: #051039;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 4px;
+            width: 70%;
+            z-index: -1;
+            transition: .4s ease;
+        }
+        .circle {
+            background-color: #ffffff;
+            color: #051039;
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #e20101;
+            transition: .4s ease;
+            font-weight: bold;
+        }
+        .circle.active {
+            border-color: #051039;
+            background-color: #051039;
+            color: #ffffff;
+        }
+        .progress-step {
+            text-align: center;
+            width: 25%;
+        }
+        .progress-step p {
+            margin-top: 10px;
+            color: #051039;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        #map {
+            height: 450px;
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        #print-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #051039;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #print-button:hover {
+            background-color: #030a24;
+        }
+        @media print {
+            #tracking-form, #print-button, footer {
+                display: none;
+            }
+            #dashboard {
+                box-shadow: none;
+                border: none;
+            }
+        }
+        footer {
+            text-align: center;
+            padding: 25px;
+            background-color: #051039;
+            color: #ffffff;
+            margin-top: 50px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/CMA_CGM_logo.svg" alt="CMA CGM Logo">
+        <h1>Shipment Tracking Portal</h1>
+    </header>
+
+    <section id="tracking-form">
+        <input type="text" id="tracking-code" placeholder="Enter Tracking Code" required>
+        <button type="button" onclick="trackShipment()">Track</button>
+    </section>
+
+    <section id="dashboard">
+        <h2>Shipment Details</h2>
+
+        <div class="info-section">
+            <h3><i class="fas fa-arrow-circle-right"></i> Sender Information</h3>
+            <p><strong>Name:</strong> Min Jun</p>
+            <p><strong>Address:</strong> London</p>
+            <p><strong>Email:</strong> mjun2327@gmail.com</p>
+            <p><strong>Phone:</strong> +44 7985 293148</p>
+        </div>
+
+        <div class="info-section">
+            <h3><i class="fas fa-arrow-circle-left"></i> Receiver Information</h3>
+            <p><strong>Name:</strong> Kristal Lopez Melendez</p>
+            <p><strong>Phone:</strong> +502 3489 1341</p>
+            <p><strong>Email:</strong> Beauty.hope@outlook.es</p>
+            <p><strong>Address:</strong> 28 Calle B, Ciudad de Guatemala, Guatemala</p>
+            <p><strong>Country:</strong> Guatemala</p>
+        </div>
+
+        <div class="info-section">
+            <h3>Package Details</h3>
+            <table>
+                <tr>
+                    <th>Weight</th>
+                    <td>23kg</td>
+                </tr>
+                <tr>
+                    <th>Destination</th>
+                    <td>Guatemala</td>
+                </tr>
+                <tr>
+                    <th>Mode of Transportation</th>
+                    <td>Freight</td>
+                </tr>
+                <tr>
+                    <th>Tracking Code</th>
+                    <td>CMAU987654321</td>
+                </tr>
+                <tr>
+                    <th>Expected Delivery Date</th>
+                    <td>19 August 2025</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="info-section">
+            <h3>Shipment Progress</h3>
+            <div class="progress-container">
+                <div class="progress"></div>
+                <div class="progress-step">
+                    <div class="circle active">1</div>
+                    <p>Shipped</p>
+                </div>
+                <div class="progress-step">
+                    <div class="circle active">2</div>
+                    <p>In Transit</p>
+                </div>
+                <div class="progress-step">
+                    <div class="circle active">3</div>
+                    <p>Out for Delivery</p>
+                </div>
+                <div class="progress-step">
+                    <div class="circle">4</div>
+                    <p>Delivered</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Current Location</h3>
+            <p><strong>Status:</strong> Package is en route from La Aurora International Airport to 28 Calle B, Ciudad de Guatemala, Guatemala</p>
+            <iframe id="map" src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d123686.84445137495!2d-90.529699!3d14.582999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m5!1s0x8589a0c6f1e6d5ab%3A0x1a2b3c4d5e6f7890!2sLa%20Aurora%20International%20Airport%2C%20Ciudad%20de%20Guatemala%2C%20Guatemala!3m2!1d14.582999!2d-90.529699!4m5!1s0x8589a3c4d5e6f789%3A0x1a2b3c4d5e6f7890!2s28%20Calle%20B%2C%20Ciudad%20de%20Guatemala%2C%20Guatemala!3m2!1d14.598576!2d-90.514452!5e0!3m2!1sen!2sgt!4v1724060000000!5m2!1sen!2sgt" frameborder="0" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+
+        <button id="print-button" onclick="window.print()">Print Shipment Details</button>
+    </section>
+
+    <footer>
+        THANKS FOR USING CMA-CGM
+    </footer>
+
+    <script>
+        function trackShipment() {
+            const code = document.getElementById('tracking-code').value.trim().toUpperCase();
+            const validCode = 'CMAU987654321';
+            if (code === validCode) {
+                document.getElementById('tracking-form').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            } else {
+                alert('Invalid tracking code. Please enter CMAU987654321.');
+            }
+        }
+    </script>
+</body>
+</html>
